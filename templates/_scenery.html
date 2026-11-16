@@ -1,0 +1,44 @@
+{# Нарисованный пейзаж с туманными холмами: фон первого экрана на всех страницах #}
+<svg class="scenery" viewBox="0 0 1440 980" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+    <defs>
+        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#f3efe6"/>
+            <stop offset="0.55" stop-color="#ece5d2"/>
+            <stop offset="1" stop-color="#e3dcc4"/>
+        </linearGradient>
+        <radialGradient id="sun" cx="0.62" cy="0.42" r="0.45">
+            <stop offset="0" stop-color="#fffaf0" stop-opacity="1"/>
+            <stop offset="0.4" stop-color="#fbf1d8" stop-opacity="0.6"/>
+            <stop offset="1" stop-color="#fbf1d8" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="fog" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#f4f1ea" stop-opacity="0"/>
+            <stop offset="1" stop-color="#f4f1ea" stop-opacity="0.95"/>
+        </linearGradient>
+        <linearGradient id="hill-near" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#8d9d6a"/>
+            <stop offset="1" stop-color="#5c6f42"/>
+        </linearGradient>
+        <linearGradient id="hill-front" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#6f8550"/>
+            <stop offset="1" stop-color="#3f5530"/>
+        </linearGradient>
+        <filter id="haze-far"><feGaussianBlur stdDeviation="3"/></filter>
+        <filter id="haze-mid"><feGaussianBlur stdDeviation="1.4"/></filter>
+        <filter id="mist"><feGaussianBlur stdDeviation="26"/></filter>
+    </defs>
+    <rect width="1440" height="980" fill="url(#sky)"/>
+    <rect width="1440" height="980" fill="url(#sun)"/>
+    <path filter="url(#haze-far)" fill="#d3d2bd" d="M0 560 C120 520 220 470 330 488 C430 505 470 455 590 430 C700 408 780 470 880 462 C990 452 1060 400 1180 420 C1290 438 1360 480 1440 470 V980 H0Z"/>
+    <path filter="url(#haze-far)" fill="#c2c6a8" d="M0 600 C110 580 190 540 300 552 C420 566 520 520 640 512 C760 505 840 560 960 548 C1080 536 1150 492 1260 506 C1350 518 1400 540 1440 536 V980 H0Z"/>
+    <ellipse filter="url(#mist)" cx="720" cy="600" rx="760" ry="70" fill="#f6f2e8" opacity="0.85"/>
+    <path filter="url(#haze-mid)" fill="#a9b48b" d="M0 660 C140 620 260 600 380 630 C500 660 560 600 700 590 C840 580 900 640 1040 632 C1160 625 1260 585 1440 610 V980 H0Z"/>
+    <ellipse filter="url(#mist)" cx="400" cy="680" rx="520" ry="50" fill="#f6f2e8" opacity="0.7"/>
+    <path fill="url(#hill-near)" d="M0 740 C160 690 300 676 460 704 C600 728 700 690 860 690 C1020 690 1120 736 1260 722 C1350 713 1400 700 1440 702 V980 H0Z"/>
+    <path fill="url(#hill-front)" d="M0 820 C200 772 380 770 560 800 C720 826 860 790 1020 792 C1180 794 1320 830 1440 812 V980 H0Z"/>
+    <g class="scenery-birds" fill="none" stroke="#3b3a35" stroke-linecap="round">
+        <path stroke-width="2.4" d="M318 548 q10 -9 20 0 q10 -9 20 0"/>
+        <path stroke-width="1.8" d="M362 528 q7 -6 14 0 q7 -6 14 0"/>
+    </g>
+    <rect y="560" width="1440" height="420" fill="url(#fog)"/>
+</svg>

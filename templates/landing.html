@@ -1,0 +1,385 @@
+{# Страница о проекте для гостей. Светлая, со своими стилями, поэтому не наследует base.html #}
+{% macro norm_text(key) -%}
+    {%- set low, high = norms[key] -%}
+    {%- set unit = metrics[key].unit -%}
+    {%- if low is not none and high is not none -%}норма {{ low }}–{{ high }} {{ unit }}
+    {%- elif high is not none -%}норма до {{ high }} {{ unit }}
+    {%- else -%}норма от {{ low }} {{ unit }}{%- endif -%}
+{%- endmacro %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Эко-Монитор — чем вы дышите</title>
+    <meta name="description" content="Школьный прибор измеряет температуру, влажность, CO₂ и пыль и подсказывает, когда пора проветрить.">
+    <meta name="theme-color" content="#eeedea">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='landing.css') }}">
+    <script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+    <a class="skip-link" href="#content">Перейти к содержимому</a>
+
+    <svg class="sprite" aria-hidden="true">
+        <symbol id="l-air" viewBox="0 0 24 24"><path d="M3 8h11a3 3 0 1 0-3-3M3 12h16a3 3 0 1 1-3 3M3 16h8a3 3 0 1 1-3 3"/></symbol>
+        <symbol id="l-leaf" viewBox="0 0 24 24"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></symbol>
+        <symbol id="l-temperature" viewBox="0 0 24 24"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></symbol>
+        <symbol id="l-humidity" viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></symbol>
+        <symbol id="l-co2" viewBox="0 0 24 24"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></symbol>
+        <symbol id="l-dust" viewBox="0 0 24 24"><circle cx="6" cy="7" r="1.6"/><circle cx="13" cy="5" r="1.6"/><circle cx="19" cy="9" r="1.6"/><circle cx="9" cy="13" r="1.6"/><circle cx="16" cy="15" r="1.6"/><circle cx="5" cy="18" r="1.6"/><circle cx="12" cy="20" r="1.6"/></symbol>
+        <symbol id="l-chart" viewBox="0 0 24 24"><path d="M3 3v18h18M7 15l4-4 3 3 5-6"/></symbol>
+        <symbol id="l-bell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></symbol>
+        <symbol id="l-wifi" viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"/></symbol>
+        <symbol id="l-arrow" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></symbol>
+        <symbol id="l-chip" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="2"/><path d="M9 1v4M15 1v4M9 19v4M15 19v4M1 9h4M1 15h4M19 9h4M19 15h4"/></symbol>
+        <symbol id="l-send" viewBox="0 0 24 24"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z"/></symbol>
+        <symbol id="l-eye" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></symbol>
+        <symbol id="l-play" viewBox="0 0 24 24"><path d="M7 4.5v15l12-7.5z"/></symbol>
+        <symbol id="l-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></symbol>
+        <symbol id="l-cursor" viewBox="0 0 24 24"><path d="M4 2l16 9-7 2-3 7z"/></symbol>
+    </svg>
+
+    <header class="nav">
+        <a class="brand" href="{{ url_for('index') }}">
+            <span class="brand-mark"><svg class="i"><use href="#l-air"></use></svg></span>Эко-Монитор
+        </a>
+        <nav class="nav-links" aria-label="Разделы">
+            <a href="#features">Возможности</a>
+            <a href="#sensors">Датчики</a>
+            <a href="#how">Как работает</a>
+            <a href="#faq">Вопросы</a>
+            <a href="{{ url_for('demo') }}">Демо</a>
+        </nav>
+        {% if current_user.is_authenticated %}
+        <a class="btn btn-sm" href="{{ url_for('index') }}">Панель</a>
+        {% else %}
+        <a class="btn btn-sm" href="{{ url_for('login') }}">Войти</a>
+        {% endif %}
+    </header>
+
+    <main id="content">
+        <!-- ---------- Первый экран ---------- -->
+        <section class="hero">
+            {% include '_scenery.html' %}
+
+            <div class="hero-text">
+                <span class="eyebrow"><svg class="i"><use href="#l-leaf"></use></svg>Умный прибор для вашего класса</span>
+                <h1>Чистый воздух,<br>который видно.</h1>
+                <p>Эко-Монитор измеряет температуру, влажность, CO₂ и пыль, а сайт сразу говорит,
+                   всё ли в порядке и когда пора открыть окно.</p>
+                <div class="hero-actions">
+                    {% if current_user.is_authenticated %}
+                    <a class="btn btn-lg" href="{{ url_for('index') }}">
+                        <svg class="i"><use href="#l-eye"></use></svg>Открыть панель
+                    </a>
+                    <a class="btn btn-lg btn-ghost" href="{{ url_for('demo') }}">Демо</a>
+                    {% else %}
+                    <a class="btn btn-lg" href="{{ url_for('demo') }}">
+                        <svg class="i"><use href="#l-play"></use></svg>Посмотреть демо
+                    </a>
+                    <a class="btn btn-lg btn-ghost" href="{{ url_for('login') }}">Войти</a>
+                    {% endif %}
+                </div>
+                <ul class="facts">
+                    {% if not current_user.is_authenticated %}<li>Демо без регистрации</li>{% endif %}
+                    <li>4 показателя</li><li>Обновление каждые 5 секунд</li><li>История за месяц</li>
+                </ul>
+            </div>
+
+            <div class="stage">
+                <div class="screen">
+                    <div class="screen-bar">
+                        <span class="screen-app"><svg class="i"><use href="#l-air"></use></svg>Эко-Монитор</span>
+                        <span class="screen-notch" aria-hidden="true"></span>
+                        <span class="screen-status"><svg class="i"><use href="#l-wifi"></use></svg><span data-clock="short">10:42</span></span>
+                    </div>
+                    <div class="scene3d" data-scene3d="demo" aria-label="3D-модель прибора Эко-Монитор">
+                        <div class="scene-tip" hidden></div>
+                        <span class="scene-hint">Покрутите модель мышью</span>
+                    </div>
+                </div>
+
+                <div class="dock" aria-label="Пример показаний на панели" aria-live="off">
+                    <div class="tile tile-clock">
+                        <strong data-clock="short">10:42</strong>
+                        <small data-clock="date">ср, 4 нояб.</small>
+                    </div>
+                    <div class="tile" data-demo="temperature">
+                        <span class="tile-head"><svg class="i"><use href="#l-temperature"></use></svg>Температура</span>
+                        <strong><span class="v">21,4</span><em>°C</em></strong>
+                        <small class="lvl">Норма</small>
+                    </div>
+                    <div class="tile" data-demo="humidity">
+                        <span class="tile-head"><svg class="i"><use href="#l-humidity"></use></svg>Влажность</span>
+                        <strong><span class="v">47</span><em>%</em></strong>
+                        <small class="lvl">Норма</small>
+                    </div>
+                    <div class="tile tile-ring" data-demo="co2">
+                        <svg class="ring" viewBox="0 0 44 44" aria-hidden="true">
+                            <circle cx="22" cy="22" r="18" class="ring-track"/>
+                            <circle cx="22" cy="22" r="18" class="ring-bar" pathLength="100"/>
+                        </svg>
+                        <span class="ring-text"><strong class="v">520</strong><small>CO₂ ppm</small></span>
+                    </div>
+                    <div class="tile tile-hide-sm" data-demo="dust">
+                        <span class="tile-head"><svg class="i"><use href="#l-dust"></use></svg>Пыль</span>
+                        <strong><span class="v">9</span><em>мкг/м³</em></strong>
+                        <small class="lvl">Норма</small>
+                    </div>
+                    <div class="tile tile-status" id="demo-status" data-level="good">
+                        <span class="dot"></span>
+                        <span><strong>Воздух в норме</strong><small>Проветривать пока не нужно</small></span>
+                    </div>
+                </div>
+
+                <div class="scenarios" role="group" aria-label="Пример: как сайт реагирует на разный воздух">
+                    <span class="scenarios-label">Попробуйте сами:</span>
+                    <button type="button" class="chip" data-scenario="fresh" data-level="good" aria-pressed="true">Свежее утро</button>
+                    <button type="button" class="chip" data-scenario="lesson" data-level="warn" aria-pressed="false">После урока</button>
+                    <button type="button" class="chip" data-scenario="closed" data-level="danger" aria-pressed="false">Окна закрыты весь день</button>
+                </div>
+                <p class="stage-note">Это пример: значения придуманы, чтобы показать, как сайт реагирует на воздух</p>
+            </div>
+        </section>
+
+        <!-- ---------- Возможности ---------- -->
+        <section class="section" id="features">
+            <div class="section-head reveal">
+                <h2>Всё о воздухе —<br><span class="soft">в одном окне</span></h2>
+                <p>Один взгляд на панель, и понятно, что происходит в классе: общий вывод, четыре показателя,
+                   график за час или месяц и советы, что сделать.</p>
+                <ul class="tags">
+                    <li>Вывод о воздухе</li><li>Тренды за 15 минут</li><li>Графики</li><li>Таблица для Excel</li><li>Напоминания</li><li>3D-модель</li>
+                </ul>
+            </div>
+
+            <div class="showcase reveal">
+                <div class="app">
+                    <div class="app-bar"><i></i><i></i><i></i><span>Панель мониторинга</span></div>
+                    <div class="app-body">
+                        <div class="app-verdict" id="demo-verdict" data-level="good">
+                            <span class="app-pill" id="demo-verdict-badge">Всё хорошо</span>
+                            <strong id="demo-verdict-title">Воздух в норме</strong>
+                        </div>
+                        <div class="app-cards">
+                            {% for key, metric in metrics.items() %}
+                            <div class="app-card" data-scale-metric="{{ key }}">
+                                <span class="app-card-head"><svg class="i"><use href="#l-{{ key }}"></use></svg>{{ metric.label }}</span>
+                                <strong class="app-value">–</strong>
+                                <span class="mini-scale"></span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="app-chart">
+                            <span class="app-chart-title"><svg class="i"><use href="#l-chart"></use></svg>CO₂ за сутки</span>
+                            <svg viewBox="0 0 600 160" preserveAspectRatio="none" aria-hidden="true">
+                                <defs>
+                                    <linearGradient id="area" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="0" stop-color="#7fd3a8" stop-opacity="0.35"/>
+                                        <stop offset="1" stop-color="#7fd3a8" stop-opacity="0"/>
+                                    </linearGradient>
+                                </defs>
+                                <rect x="0" y="70" width="600" height="90" fill="#7fd3a8" opacity="0.08"/>
+                                <path fill="url(#area)" d="M0 120 C40 118 60 112 90 104 S150 80 180 60 S230 40 250 70 S300 120 340 118 S400 96 430 84 S490 50 520 64 S570 110 600 108 V160 H0Z"/>
+                                <path class="chart-line" fill="none" stroke="#9fe0c0" stroke-width="3" d="M0 120 C40 118 60 112 90 104 S150 80 180 60 S230 40 250 70 S300 120 340 118 S400 96 430 84 S490 50 520 64 S570 110 600 108"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <svg class="cursor" aria-hidden="true"><use href="#l-cursor"></use></svg>
+                <div class="showcase-more">
+                    <a class="btn btn-light" href="{{ url_for('demo') }}">Открыть живое демо<svg class="i"><use href="#l-arrow"></use></svg></a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ---------- Цифры ---------- -->
+        <section class="stats reveal" aria-label="Коротко о проекте">
+            <div><strong>4</strong><span>показателя воздуха</span></div>
+            <div><strong>5 с</strong><span>между обновлениями</span></div>
+            <div><strong>30 дней</strong><span>истории на графике</span></div>
+            <div><strong>1 клик</strong><span>до таблицы в Excel</span></div>
+        </section>
+
+        <!-- ---------- Датчики ---------- -->
+        <section class="section" id="sensors">
+            <div class="section-head reveal">
+                <h2>Датчик для всего,<br>чем вы дышите</h2>
+                <p>Недорогие датчики на одной плате с Wi-Fi. Каждый показатель сравнивается с нормой,
+                   а границы норм можно поменять в одном месте кода.</p>
+            </div>
+            <div class="cards">
+                <article class="card reveal">
+                    <h3>Температура</h3>
+                    <p>Датчик следит, не холодно ли и не душно ли в классе. Если слишком жарко, сайт подскажет проветрить.</p>
+                    <span class="card-norm">{{ norm_text('temperature') }}</span>
+                    <div class="widgets widgets-2">
+                        <div class="w"><svg class="i"><use href="#l-temperature"></use></svg><strong>22,6°</strong><small>Сейчас</small></div>
+                        <div class="w"><span class="w-arrow">↑</span><strong>0,4°</strong><small>за 15 минут</small></div>
+                        <div class="w w-wide" data-scale-metric="temperature" data-sample="22.6"><small>Шкала: зелёная зона означает норму</small><span class="mini-scale"></span></div>
+                    </div>
+                </article>
+                <article class="card reveal">
+                    <h3>Влажность</h3>
+                    <p>Тот же датчик измеряет влажность: сухой воздух сушит горло, слишком влажный тоже вреден.</p>
+                    <span class="card-norm">{{ norm_text('humidity') }}</span>
+                    <div class="widgets widgets-2">
+                        <div class="w"><svg class="i"><use href="#l-humidity"></use></svg><strong>46 %</strong><small>Сейчас</small></div>
+                        <div class="w"><span class="w-arrow">→</span><strong>Ровно</strong><small>за 15 минут</small></div>
+                        <div class="w w-wide" data-scale-metric="humidity" data-sample="46"><small>Шкала: зелёная зона означает норму</small><span class="mini-scale"></span></div>
+                    </div>
+                </article>
+                <article class="card reveal">
+                    <h3>Углекислый газ</h3>
+                    <p>Датчик газа замечает, что воздух «надышан». Когда CO₂ растёт, внимание падает, и пора открыть окно.</p>
+                    <span class="card-norm">{{ norm_text('co2') }}</span>
+                    <div class="widgets widgets-2">
+                        <div class="w"><svg class="i"><use href="#l-co2"></use></svg><strong>640</strong><small>ppm сейчас</small></div>
+                        <div class="w w-warn"><span class="w-arrow">↑</span><strong>120</strong><small>за 15 минут</small></div>
+                        <div class="w w-wide" data-scale-metric="co2" data-sample="640"><small>Шкала: зелёная зона означает норму</small><span class="mini-scale"></span></div>
+                    </div>
+                </article>
+                <article class="card reveal">
+                    <h3>Пыль</h3>
+                    <p>Оптический датчик пыли считает мелкие частицы в воздухе и подсказывает, когда нужна влажная уборка.</p>
+                    <span class="card-norm">{{ norm_text('dust') }}</span>
+                    <div class="widgets widgets-2">
+                        <div class="w"><svg class="i"><use href="#l-dust"></use></svg><strong>12</strong><small>мкг/м³ сейчас</small></div>
+                        <div class="w"><span class="w-arrow">↓</span><strong>3</strong><small>за 15 минут</small></div>
+                        <div class="w w-wide" data-scale-metric="dust" data-sample="12"><small>Шкала: зелёная зона означает норму</small><span class="mini-scale"></span></div>
+                    </div>
+                </article>
+                <article class="card reveal">
+                    <h3>Графики и таблицы</h3>
+                    <p>История за час, сутки, неделю или месяц с минимумом, средним и максимумом. Таблицу можно скачать для Excel.</p>
+                    <div class="widgets widgets-2">
+                        <div class="w"><svg class="i"><use href="#l-chart"></use></svg><strong>4 периода</strong><small>от часа до месяца</small></div>
+                        <div class="w"><svg class="i"><use href="#l-download"></use></svg><strong>Таблица</strong><small>для Excel</small></div>
+                        <div class="w w-wide"><small>За любой период видно</small><strong>минимум · среднее · максимум</strong></div>
+                    </div>
+                </article>
+                <article class="card reveal">
+                    <h3>Напоминания</h3>
+                    <p>Браузер сам сообщит, когда воздух стал плохим, даже если вкладка с панелью свёрнута.</p>
+                    <div class="widgets">
+                        <div class="w w-wide w-note"><svg class="i"><use href="#l-bell"></use></svg><span><strong>Эко-Монитор</strong><small>Пора проветрить помещение</small></span></div>
+                        <div class="w w-wide"><small>А ещё состояние воздуха видно по цветной точке на вкладке браузера</small></div>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- ---------- Как работает ---------- -->
+        <section class="section" id="how">
+            <div class="section-head reveal">
+                <h2>Как это работает</h2>
+                <p>От датчика до совета проходит несколько секунд.</p>
+            </div>
+            <ol class="steps">
+                <li class="reveal">
+                    <span class="step-icon"><svg class="i"><use href="#l-chip"></use></svg></span>
+                    <h3>Прибор измеряет</h3>
+                    <p>Плата опрашивает датчики и собирает показания.</p>
+                </li>
+                <li class="reveal">
+                    <span class="step-icon"><svg class="i"><use href="#l-send"></use></svg></span>
+                    <h3>Отправляет по Wi-Fi</h3>
+                    <p>Показания уходят на сайт. Если один датчик сломался, остальные значения всё равно сохраняются.</p>
+                </li>
+                <li class="reveal">
+                    <span class="step-icon"><svg class="i"><use href="#l-eye"></use></svg></span>
+                    <h3>Сайт объясняет</h3>
+                    <p>Панель сравнивает значения с нормой и пишет простыми словами, что сделать.</p>
+                </li>
+            </ol>
+        </section>
+
+        <!-- ---------- Вопросы ---------- -->
+        <section class="section" id="faq">
+            <div class="section-head reveal">
+                <h2>Частые вопросы</h2>
+            </div>
+            <div class="faq reveal">
+                <details>
+                    <summary>Можно ли посмотреть без прибора?</summary>
+                    <p>Да. Откройте <a href="{{ url_for('demo') }}">демо</a>: там та же панель с придуманными показаниями
+                       обычного школьного дня. Регистрация для этого не нужна.</p>
+                </details>
+                <details>
+                    <summary>Что означают цвета?</summary>
+                    <p>Зелёный значит, что показатель в норме. Жёлтый: стоит обратить внимание.
+                       Красный: пора действовать, например проветрить.</p>
+                </details>
+                <details>
+                    <summary>Как понять, что пора проветривать?</summary>
+                    <p>Сайт напишет об этом крупно в самом верху панели. А если включить напоминания,
+                       браузер ещё и пришлёт уведомление.</p>
+                </details>
+                <details>
+                    <summary>Нужен ли интернет?</summary>
+                    <p>Нет: прибор и сайт работают в одной локальной сети. Интернет нужен только для 3D-модели и шрифта,
+                       без него всё остальное продолжит работать.</p>
+                </details>
+                <details>
+                    <summary>Кто видит показания?</summary>
+                    <p>Только пользователи, которые вошли на сайт. Регистрацию новых аккаунтов можно отключить,
+                       а прибору выдать секретный ключ.</p>
+                </details>
+                <details>
+                    <summary>Насколько точно измеряется CO₂?</summary>
+                    <p>Приблизительно. Датчик газа реагирует на разные газы, поэтому показывает скорее «насколько надышано»,
+                       чем точную концентрацию CO₂.</p>
+                </details>
+                <details>
+                    <summary>Что будет, если сломается датчик?</summary>
+                    <p>Сайт сохранит показания остальных датчиков, а у сломанного напишет «нет данных».</p>
+                </details>
+                <details>
+                    <summary>Можно ли выгрузить данные?</summary>
+                    <p>Да, таблицу за выбранный период можно скачать и открыть в Excel.</p>
+                </details>
+            </div>
+        </section>
+
+        <!-- ---------- Призыв ---------- -->
+        <section class="final reveal">
+            <h2>Узнайте, чем вы дышите<br>прямо сейчас.</h2>
+            <div class="final-actions">
+                {% if current_user.is_authenticated %}
+                <a class="btn btn-lg" href="{{ url_for('index') }}">Открыть панель<svg class="i"><use href="#l-arrow"></use></svg></a>
+                {% else %}
+                <a class="btn btn-lg" href="{{ url_for('demo') }}">Посмотреть демо<svg class="i"><use href="#l-arrow"></use></svg></a>
+                {% if allow_registration %}
+                <a class="btn btn-lg btn-ghost" href="{{ url_for('register') }}">Создать аккаунт</a>
+                {% else %}
+                <a class="btn btn-lg btn-ghost" href="{{ url_for('login') }}">Войти</a>
+                {% endif %}
+                {% endif %}
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <a class="brand" href="{{ url_for('index') }}">
+            <span class="brand-mark"><svg class="i"><use href="#l-air"></use></svg></span>Эко-Монитор
+        </a>
+        <nav class="footer-links" aria-label="Ссылки">
+            <a href="{{ url_for('demo') }}">Демо</a>
+            {% if current_user.is_authenticated %}
+            <a href="{{ url_for('index') }}">Панель</a>
+            {% else %}
+            <a href="{{ url_for('login') }}">Войти</a>
+            {% endif %}
+        </nav>
+        <p>Python, Flask, SQLite, Three.js · Инженерный класс, 10 класс</p>
+    </footer>
+
+    <script type="application/json" id="config">{{ {'metrics': metrics}|tojson }}</script>
+    <script src="{{ url_for('static', filename='landing.js') }}"></script>
+    {% include '_scene3d.html' %}
+</body>
+</html>

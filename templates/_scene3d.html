@@ -1,0 +1,18 @@
+{# 3D-модель прибора. Three.js грузится из интернета; без сети страница работает и без модели. #}
+<script type="importmap">
+{
+    "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+}
+</script>
+<script type="module" src="{{ url_for('static', filename='scene3d.js') }}"></script>
+<script>
+    // Если библиотека так и не загрузилась, убираем пустое место под модель
+    setTimeout(function () {
+        for (const scene of document.querySelectorAll('[data-scene3d]:not(.scene-ready)')) {
+            scene.classList.add('scene-failed');
+        }
+    }, 10000);
+</script>

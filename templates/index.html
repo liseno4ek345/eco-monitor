@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ 'Демо' if demo else 'Панель' }} — Эко-Монитор{% endblock %}
+
+{% block content %}
+<section class="hero with-scenery" id="verdict" data-level="loading">
+    {% include '_scenery.html' %}
+    <div class="hero-glow" aria-hidden="true"></div>
+    {% if demo %}
+    <div class="wrap">
+        <div class="demo-banner fade-up" role="note">
+            <span class="demo-tag">Демо</span>
+            <p>Показания ненастоящие: сайт сам рисует обычный школьный день, чтобы показать, как всё работает.</p>
+            {% if current_user.is_authenticated %}
+            <a class="btn btn-primary btn-sm" href="{{ url_for('index') }}">К моей панели</a>
+            {% else %}
+            <a class="btn btn-primary btn-sm" href="{{ url_for('login') }}">Войти к своему прибору</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+    <div class="wrap hero-layout">
+        <div class="hero-content fade-up">
+            <div aria-live="polite">
+                <span class="badge"><span class="badge-dot"></span><span id="verdict-badge">Подключение</span></span>
+                <h1 id="verdict-title">Загружаю показания</h1>
+                <ul class="advice" id="verdict-advice" hidden></ul>
+                <p id="verdict-detail"></p>
+            </div>
+            <button type="button" class="btn btn-outline btn-sm notify" id="notify" aria-pressed="false" hidden>
+                <svg class="icon"><use href="#i-bell"></use></svg><span id="notify-text">Напоминать о проветривании</span>
+            </button>
+        </div>
+        <div class="scene3d fade-up" data-scene3d
+             aria-label="3D-модель прибора. Цвет воздуха вокруг показывает его состояние, нажатие на датчик открывает его график">
+            <div class="scene-tip" hidden></div>
+            <span class="scene-hint">Покрутите модель · нажмите на датчик</span>
+        </div>
+    </div>
+</section>
+
+<div class="wrap setup-layout" id="setup" hidden>
+    <section class="glass setup fade-up">
+        <h2>Что нужно сделать</h2>
+        <p class="setup-lead">Как только прибор начнёт присылать данные, они появятся здесь сами:
+           обновлять страницу не нужно.</p>
+        <ol class="setup-steps">
+            <li><div><strong>Включите прибор</strong><span>Подключите его к питанию и подождите около минуты.</span></div></li>
+            <li><div><strong>Прибор сам отправит показания</strong><span>Он должен быть в той же сети, что и компьютер с сайтом.</span></div></li>
+            <li><div><strong>Смотрите на этой странице</strong><span>Появятся оценка воздуха, четыре показателя и график.</span></div></li>
+        </ol>
+        <details class="setup-tech">
+            <summary>Подробности для того, кто настраивает прибор</summary>
+            <p>Прибор должен отправлять POST-запрос на адрес
+               <code id="setup-url">http://IP-этого-компьютера:5000/api/data</code> с таким JSON:</p>
+            <pre><code>{"temperature": 23.5, "humidity": 45, "co2": 650, "dust": 12}</code></pre>
+            <p>Прибора нет под рукой? Запустите в отдельном терминале
+               <code>python simulate_sensor.py</code>, и на панели появятся тестовые показания.</p>
+        </details>
+    </section>
+    <aside class="glass setup-demo fade-up">
+        <span class="reading-icon"><svg class="icon"><use href="#i-play"></use></svg></span>
+        <h2>Пока ждёте, загляните в демо</h2>
+        <p>Там та же панель, только с придуманными показаниями обычного школьного дня.
+           Видно, как выглядят оценка воздуха, советы и графики.</p>
+        <a class="btn btn-light" href="{{ url_for('demo') }}">Открыть демо</a>
+    </aside>
+</div>
+
+<div class="wrap dashboard" id="dashboard">
+    <div class="readings loading fade-up" id="readings" role="group" aria-label="Выберите показатель для графика">
+        {% for key, metric in metrics.items() %}
+        <button type="button" class="reading glass" data-metric="{{ key }}"
+                aria-pressed="{{ 'true' if loop.first else 'false' }}">
+            <span class="reading-head">
+                <span class="reading-icon"><svg class="icon"><use href="#i-{{ key }}"></use></svg></span>
+                <span class="reading-label">{{ metric.label }}</span>
+            </span>
+            <span class="reading-value"><span class="number">–</span> <span class="unit"{% if metric.unit_hint %} title="{{ metric.unit_hint }}"{% endif %}>{{ metric.unit }}</span></span>
+            <span class="reading-trend" hidden></span>
+            <span class="scale" aria-hidden="true"></span>
+            <span class="reading-state">нет данных</span>
+        </button>
+        {% endfor %}
+    </div>
+
+    <section class="glass chart-panel fade-up" id="chart-panel">
+        <div class="chart-head">
+            <div class="chart-heading">
+                <span class="reading-icon"><svg class="icon"><use id="chart-icon" href="#i-chart"></use></svg></span>
+                <div>
+                    <h2 id="chart-title">История</h2>
+                    <p class="chart-about" id="chart-about"></p>
+                </div>
+            </div>
+            <div class="pills periods" role="group" aria-label="Период графика">
+                {% for key, label in ranges.items() %}
+                <button type="button" class="pill period" data-range="{{ key }}"
+                        aria-pressed="{{ 'true' if loop.first else 'false' }}">{{ label }}</button>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="chart" id="chart">
+            <div class="chart-tip" id="chart-tip" hidden></div>
+            <div class="chart-empty" id="chart-empty" hidden>
+                <p id="chart-empty-text">За этот период измерений нет</p>
+                <button type="button" class="btn btn-outline btn-sm" id="chart-empty-action" hidden></button>
+            </div>
+        </div>
+
+        <ul class="legend" id="legend" aria-label="Что означают значения"></ul>
+        <p class="chart-hint" id="chart-hint" hidden></p>
+
+        <div class="chart-foot">
+            <dl class="stats" id="stats">
+                <div><dt>Минимум</dt><dd data-stat="min">–</dd></div>
+                <div><dt>Среднее</dt><dd data-stat="avg">–</dd></div>
+                <div><dt>Максимум</dt><dd data-stat="max">–</dd></div>
+            </dl>
+            <a class="btn btn-outline" id="download" href="{{ url_for('export_csv') }}" download{% if demo %} hidden{% endif %}>
+                <svg class="icon"><use href="#i-download"></use></svg><span id="download-text">Скачать таблицу</span>
+            </a>
+        </div>
+    </section>
+
+    <p class="note">Зелёная полоса на графике показывает норму. Границы норм ориентировочные.
+       Датчик газа реагирует на разные газы, поэтому CO₂ показан приблизительно.</p>
+</div>
+
+<script type="application/json" id="config">{{ {
+    'demo': demo,
+    'metrics': metrics,
+    'urls': {
+        'latest': url_for('demo_latest') if demo else url_for('latest'),
+        'history': url_for('demo_history') if demo else url_for('history'),
+        'export': url_for('export_csv'),
+        'login': url_for('login'),
+    },
+}|tojson }}</script>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+{% include '_scene3d.html' %}
+{% endblock %}

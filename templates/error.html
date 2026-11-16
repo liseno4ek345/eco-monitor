@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} — Эко-Монитор{% endblock %}
+
+{% block content %}
+<section class="auth-section with-scenery">
+    {% include '_scenery.html' %}
+    <div class="auth-card fade-up">
+        <div class="auth-head">
+            <span class="auth-icon"><svg class="icon"><use href="#i-air"></use></svg></span>
+            <h1>{{ title }}</h1>
+            <p>{{ text }}</p>
+        </div>
+        <a class="btn btn-primary btn-block" href="{{ url_for('index') }}">Перейти на главную</a>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}Регистрация — Эко-Монитор{% endblock %}
+
+{% block content %}
+<section class="auth-section with-scenery">
+    {% include '_scenery.html' %}
+    <div class="auth-card fade-up">
+        <div class="auth-head">
+            <span class="auth-icon"><svg class="icon"><use href="#i-air"></use></svg></span>
+            <h1>Создайте аккаунт</h1>
+            <p>Это займёт полминуты: после создания вы сразу попадёте на панель</p>
+        </div>
+        <div class="pills">
+            <a class="pill" href="{{ url_for('login') }}">Вход</a>
+            <a class="pill active" href="{{ url_for('register') }}" aria-current="page">Регистрация</a>
+        </div>
+        <form method="post" action="{{ url_for('register') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group">
+                <label for="username">Имя пользователя</label>
+                <div class="input-group">
+                    <span class="input-icon"><svg class="icon"><use href="#i-user"></use></svg></span>
+                    <input type="text" id="username" name="username" value="{{ username }}"
+                           autocomplete="username" required minlength="3" maxlength="32"
+                           placeholder="От 3 до 32 символов" autofocus>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="password">Пароль</label>
+                <div class="input-group">
+                    <span class="input-icon"><svg class="icon"><use href="#i-lock"></use></svg></span>
+                    <input type="password" id="password" name="password"
+                           autocomplete="new-password" required minlength="6" maxlength="128"
+                           placeholder="Не короче 6 символов">
+                    <button class="input-toggle" type="button" data-toggle-password="password" aria-label="Показать пароль">
+                        <svg class="icon"><use href="#i-eye"></use></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="password_confirm">Повторите пароль</label>
+                <div class="input-group">
+                    <span class="input-icon"><svg class="icon"><use href="#i-lock"></use></svg></span>
+                    <input type="password" id="password_confirm" name="password_confirm"
+                           autocomplete="new-password" required minlength="6" maxlength="128">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Создать аккаунт и войти</button>
+        </form>
+        <p class="auth-alt">Просто хотите посмотреть? <a href="{{ url_for('demo') }}">Откройте демо</a></p>
+    </div>
+</section>
+{% endblock %}

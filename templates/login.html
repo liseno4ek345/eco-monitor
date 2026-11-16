@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}Вход — Эко-Монитор{% endblock %}
+
+{% block content %}
+<section class="auth-section auth-with-scene with-scenery">
+    {% include '_scenery.html' %}
+    <div class="auth-intro fade-up">
+        <h2>Чем вы дышите прямо сейчас?</h2>
+        <p>Прибор измеряет температуру, влажность, CO₂ и пыль, а сайт показывает, когда пора проветрить.</p>
+        <div class="scene3d" data-scene3d="demo" aria-label="3D-модель прибора Эко-Монитор">
+            <div class="scene-tip" hidden></div>
+            <span class="scene-hint">Покрутите модель мышью</span>
+        </div>
+    </div>
+    <div class="auth-card fade-up">
+        <div class="auth-head">
+            <span class="auth-icon"><svg class="icon"><use href="#i-air"></use></svg></span>
+            <h1>Добро пожаловать</h1>
+            <p>Войдите, чтобы увидеть показания прибора</p>
+        </div>
+        {% if allow_registration %}
+        <div class="pills">
+            <a class="pill active" href="{{ url_for('login') }}" aria-current="page">Вход</a>
+            <a class="pill" href="{{ url_for('register') }}">Регистрация</a>
+        </div>
+        {% endif %}
+        <form method="post" action="{{ url_for('login') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group">
+                <label for="username">Имя пользователя</label>
+                <div class="input-group">
+                    <span class="input-icon"><svg class="icon"><use href="#i-user"></use></svg></span>
+                    <input type="text" id="username" name="username" value="{{ username }}"
+                           autocomplete="username" required autofocus>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="password">Пароль</label>
+                <div class="input-group">
+                    <span class="input-icon"><svg class="icon"><use href="#i-lock"></use></svg></span>
+                    <input type="password" id="password" name="password"
+                           autocomplete="current-password" required>
+                    <button class="input-toggle" type="button" data-toggle-password="password" aria-label="Показать пароль">
+                        <svg class="icon"><use href="#i-eye"></use></svg>
+                    </button>
+                </div>
+            </div>
+            <label class="remember">
+                <input type="checkbox" name="remember" value="1" checked>
+                Запомнить меня на этом устройстве
+            </label>
+            <button type="submit" class="btn btn-primary btn-block">Войти</button>
+        </form>
+        <p class="auth-alt">Просто хотите посмотреть? <a href="{{ url_for('demo') }}">Откройте демо</a></p>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+{% include '_scene3d.html' %}
+{% endblock %}
